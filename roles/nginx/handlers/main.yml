@@ -1,0 +1,13 @@
+---
+- name: Start Nginx
+  service:
+    name: nginx
+    state: started
+  become: yes
+
+  # It seems that state=reloaded does not work for nginx using the Ansible 'service' module
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes

@@ -2,12 +2,18 @@
 
 # Site configurations
 
+- name: Create sites staging dir
+  file:
+    state: directory
+    path: /etc/nginx/sites-temp
+  become: yes
+
 - name: Add Site Config
   when: nginxinstalled|success
   register: site_config_installed
   template:
-    src: site_template.j2
-    dest: "/etc/nginx/sites-available/{{ item.domain }}"
+    src: "{{ item.template }}.j2"
+    dest: "/etc/nginx/sites-temp/{{ item.domain }}"
     owner: root
     group: root
   become: yes
@@ -15,11 +21,31 @@
   notify:
     - Reload Nginx
 
+- name: Clear sites-enabled
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_fileglob:
+    - "/etc/nginx/sites-enabled/*"
+  become: yes
+
+- name: assemble config files
+  assemble:
+    src: /etc/nginx/sites-temp
+    dest: /etc/nginx/sites-available/sites
+  become: yes
+
+- name: Remove temp dir
+  file:
+    path: /etc/nginx/sites-temp
+    state: absent
+  become: yes
+
 - name: Enable Site Config
   when: site_config_installed|success
   register: site_config_enabled
-  file: "src=/etc/nginx/sites-available/{{ item.domain }} dest=/etc/nginx/sites-enabled/{{ item.domain }} state=link"
-  with_items: "{{sites}}"
+  file: "src=/etc/nginx/sites-available/sites dest=/etc/nginx/sites-enabled/sites state=link"
   become: yes
   notify:
     - Reload Nginx
+

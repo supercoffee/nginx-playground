@@ -3,11 +3,11 @@ server {
     server_name localhost;
     listen 8888;
 
-    location ~ "^/media/(?<width>\d+)/(?<image>.+)$" {
-        alias /var/www/images/$image;
+    location ~ "^\/media\/(?<width>\d+)\/(?<image>.+)$" {
+        alias /vagrant/public/media/$image;
         image_filter resize $width -;
         image_filter_jpeg_quality 75;
-        image_filter_buffer 8M;
+        image_filter_buffer 16M;
     }
 }
 
@@ -19,8 +19,7 @@ server {
 
     server_name _;
 
-    # Only serve widths of 768 or 1920 so we can cache effectively.
-    location ~ "^/media/(?<width>(768|1920))/(?<image>.+)$" {
+    location ~ "^\/media\/(?<width>\d+)\/(?<image>.+)$" {
         # Proxy to internal image resizing server.
         proxy_pass http://localhost:8888/media/$width/$image;
         proxy_cache images;
@@ -28,9 +27,8 @@ server {
     }
 
     location /media {
-        # Nginx needs you to manually define DNS resolution when using
-        # variables in proxy_pass. Creating this dummy location avoids that.
-        # The error is: "no resolver defined to resolve localhost".
-        proxy_pass http://localhost:8888/;
+        proxy_pass http://localhost:8888;
     }
+
+
 }

@@ -2,6 +2,11 @@
 
 # Installation and directory config
 
+- name: Update apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
 - name: Install Nginx
   apt:
     name: nginx
@@ -28,16 +33,16 @@
 
 # Default site
 
-- name: Add default Config
-  when: nginxinstalled|success
-  template: src=default.j2 dest=/etc/nginx/sites-available/default owner=root group=root
-  become: yes
-  notify:
-    - Reload Nginx
-
-- name: Enable Default Site
-  when: nginxinstalled|success
-  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
-  become: yes
-  notify:
-    - Reload Nginx
+#- name: Add default Config
+#  when: nginxinstalled|success
+#  template: src=default.j2 dest=/etc/nginx/sites-available/default owner=root group=root
+#  become: yes
+#  notify:
+#    - Reload Nginx
+#
+#- name: Enable Default Site
+#  when: nginxinstalled|success
+#  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+#  become: yes
+#  notify:
+#    - Reload Nginx
