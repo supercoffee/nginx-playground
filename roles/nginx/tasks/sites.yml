@@ -1,0 +1,25 @@
+---
+
+# Site configurations
+
+- name: Add Site Config
+  when: nginxinstalled|success
+  register: site_config_installed
+  template:
+    src: site_template.j2
+    dest: "/etc/nginx/sites-available/{{ item.domain }}"
+    owner: root
+    group: root
+  become: yes
+  with_items: "{{sites}}"
+  notify:
+    - Reload Nginx
+
+- name: Enable Site Config
+  when: site_config_installed|success
+  register: site_config_enabled
+  file: "src=/etc/nginx/sites-available/{{ item.domain }} dest=/etc/nginx/sites-enabled/{{ item.domain }} state=link"
+  with_items: "{{sites}}"
+  become: yes
+  notify:
+    - Reload Nginx

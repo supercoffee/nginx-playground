@@ -1,0 +1,43 @@
+---
+
+# Installation and directory config
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: installed
+  register: nginxinstalled
+  become: yes
+  notify:
+    - Start Nginx
+
+- name: Make ssl directory for nginx
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    owner: root
+    group: "{{ www_group }}"
+    mode: 640
+  become: yes
+
+- name: Generate new DH param for added TLS security
+  command: "openssl dhparam -out {{ dh_param_path }} 2048"
+  args:
+    creates: "{{ dh_param_path }}"
+  become: yes
+
+# Default site
+
+- name: Add default Config
+  when: nginxinstalled|success
+  template: src=default.j2 dest=/etc/nginx/sites-available/default owner=root group=root
+  become: yes
+  notify:
+    - Reload Nginx
+
+- name: Enable Default Site
+  when: nginxinstalled|success
+  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  become: yes
+  notify:
+    - Reload Nginx

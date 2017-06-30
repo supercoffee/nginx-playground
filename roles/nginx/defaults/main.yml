@@ -1,0 +1,13 @@
+---
+
+nginx_max_body_size: 50M
+
+nginx_proxy_timeout: 60s;
+
+www_user: "www-data"
+www_group: "www-data"
+
+webroot: /var/www/
+
+ngnix_default_redirect: 127.0.0.1
+dh_param_path: /etc/nginx/ssl/dhparams.pem
