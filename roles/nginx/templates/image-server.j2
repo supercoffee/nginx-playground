@@ -1,6 +1,6 @@
 server {
     # Internal image resizing server.
-    server_name localhost;
+    server_name _;
     listen 8888;
 
     location ~ "^\/media\/(?<width>\d+)\/(?<image>.+)$" {
@@ -16,19 +16,16 @@ proxy_cache_path /tmp/nginx-images-cache/ levels=1:2 keys_zone=images:10m inacti
 server {
 
     listen 80 default_server;
-
     server_name _;
 
     location ~ "^\/media\/(?<width>\d+)\/(?<image>.+)$" {
         # Proxy to internal image resizing server.
-        proxy_pass http://localhost:8888/media/$width/$image;
+        proxy_pass http://127.0.0.1:8888/media/$width/$image;
         proxy_cache images;
         proxy_cache_valid 200 24h;
     }
 
     location /media {
-        proxy_pass http://localhost:8888;
+        alias /vagrant/public/media;
     }
-
-
 }

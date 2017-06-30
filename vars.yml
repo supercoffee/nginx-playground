@@ -2,4 +2,4 @@
 
 sites:
   - domain: _
-    template: playground
+    template: image-server
